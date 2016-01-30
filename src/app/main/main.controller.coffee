@@ -11,7 +11,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
       user = {username: "TheUser", id: ""}
       $scope.word = $scope.words[recWordCount]
   		
-      Restangular.all("related").getList().then((words) ->
+      Restangular.all("related").all("all").getList().then((words) ->
         $scope.words = words
         maxWords = $scope.words.length
         console.log maxWords
@@ -55,7 +55,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         recWordCount++
         console.log recWordCount
         if recWordCount > maxWords-1
-          Restangular.all("related").all("all").ggetList().then((words) ->
+          Restangular.all("related").all("all").getList().then((words) ->
             console.log "Words reloaded"
             recWordCount = 0
             $scope.words = words
