@@ -1,35 +1,55 @@
 app = angular.module 'coolnameFrontend'
 
-app.controller('MainController', ["$scope", "$timeout", "WordService", "UserService", "RecommendService", "$mdDialog", "$mdMedia"
-  ($scope, $timeout, WordService, UserService, RecommendService, $mdDialog, $mdMedia) ->
+app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialog", "$mdMedia", "$mdToast"
+  ($scope, $timeout, Restangular, $mdDialog, $mdMedia, $mdToast) ->
 
     $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm')
     $scope.word = {name:"Potato", definition:"The best vegetable"}
     console.dir $scope.word
     console.log "Main controller engaged"
     recWordCount = 0
-			
-    UserService.getUser(1).then((user) ->
-      $scope.user = user
-      wordId = user.recWords[recWordcount]
-      RecommendService.getWord(user.id, wordId).then((word) ->
-        $scope.word = word
-      )
+    user = {username: "TheUser", id: ""}
+		
+    Restangular.all("related").getList().then((words) ->
+      $scope.words = words
+      $scope.word = words[recWordCount]
     )
+
+    $scope.addWord = (word) ->
+      # POST word to words
+      Restangular.all("words").post(word)
+      Restangular.all("related").getList().then((words) ->
+        $scope.words = words
+        $scope.word = words[recWordCount]
+      )     
     
     $scope.saveWord = () ->
+      # POST word to words
+      Restangular.all("words").post(word)
       recWordCount++
-      wordId = $scope.user.recWords[recWordCount]
-      RecommendService.getWord($scope.user.id, wordId).then((word) ->
-        $scope.word = word
-      )
+      $scope.word = $scope.words[recWordCount]
+      if recWordCount == 49
+        Restangular.all("related").getList().then((words) ->
+          recWordcount = 0
+          $scope.words = words
+          $scope.word = words[recWordCount]
+          $mdToast.show(
+            $mdToast.simple()
+              .textContent("Word added!")
+              .position("top right")
+              .hideDelay(2000)
+          )
+        )             
 
     $scope.removeWord = () ->
       recWordCount++
-      wordId = $scope.user.words[recWordCount]
-      RecommendService.getWord(wordId).then((word) ->
-        $scope.word = word
-      )
+      $scope.word = $scope.words[recWordCount]
+      if recWordCount == 49
+        Restangular.all("related").getList().then((words) ->
+          recWordcount = 0
+          $scope.words = words
+          $scope.word = words[recWordCount]
+        )      
 
     $scope.openDef = (ev) ->
       useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen
