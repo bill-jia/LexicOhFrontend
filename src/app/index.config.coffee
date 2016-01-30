@@ -10,4 +10,4 @@ angular.module 'coolnameFrontend'
     toastrConfig.preventDuplicates = true
     toastrConfig.progressBar = true
   .config (RestangularProvider) ->
-    RestangularProvider.setBaseUrl("http://still-pine-6294.getsandbox.com")
+    RestangularProvider.setBaseUrl("http://172.20.2.117:8080")
