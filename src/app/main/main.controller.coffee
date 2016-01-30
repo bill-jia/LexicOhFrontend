@@ -1,30 +1,51 @@
-angular.module 'coolnameFrontend'
-  .controller 'MainController', ($timeout, webDevTec, toastr) ->
-    'ngInject'
-    vm = this
-    activate = ->
-      getWebDevTec()
-      $timeout (->
-        vm.classAnimation = 'rubberBand'
-        return
-      ), 4000
-      return
+app = angular.module 'coolnameFrontend'
 
-    showToastr = ->
-      toastr.info 'Fork <a href="https://github.com/Swiip/generator-gulp-angular" target="_blank"><b>generator-gulp-angular</b></a>'
-      vm.classAnimation = ''
-      return
+app.controller('MainController', ["$scope", "$timeout", "WordService", "UserService", "$mdDialog", "$mdMedia"
+  ($scope, $timeout, WordService, UserService, $mdDialog, $mdMedia) ->
 
-    getWebDevTec = ->
-      vm.awesomeThings = webDevTec.getTec()
-      angular.forEach vm.awesomeThings, (awesomeThing) ->
-        awesomeThing.rank = Math.random()
-        return
-      return
+    $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm')
+    $scope.word = {name:"Potato", definition:"The best vegetable"}
+    console.dir $scope.word
+    console.log "Main controller engaged"
 
-    vm.awesomeThings = []
-    vm.classAnimation = ''
-    vm.creationDate = 1454163350319
-    vm.showToastr = showToastr
-    activate()
-    return
+			
+		# UserService.getUser(1).then((user) ->
+		# 	$scope.user = user
+		# 	wordId = user.words[0]
+		# 	WordService.getWord(1).then((word) ->
+		# 		$scope.word = word
+		# 	)
+    # )
+    
+    $scope.saveWord = () ->
+      $scope.word.name = $scope.word.name + "s"
+
+    $scope.removeWord = () ->
+      $scope.word.name = $scope.word.name.slice(0,$scope.word.name.length-1)
+
+    $scope.openDef = (ev) ->
+      useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen
+
+      $mdDialog.show({
+        controller: DialogController
+        templateUrl: "app/main/definition.html"
+        parent: angular.element(document.body)
+        targetEvent: ev
+        clickOutsideToClose: true
+        fullscreen: useFullScreen
+        locals: {
+          name: $scope.word.name
+          definition: $scope.word.definition
+        }
+      })
+])
+
+DialogController = ["$scope", "$mdDialog", "name", "definition",
+  ($scope, $mdDialog, name, definition) ->
+    $scope.name = name
+    $scope.definition = definition
+
+    $scope.hide = () ->
+      $mdDialog.hide()
+
+]

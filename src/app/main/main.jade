@@ -1,0 +1,15 @@
+md-content(ng-swipe-right="saveWord()" ng-swipe-left="removeWord()")
+  section(layout="row" layout-align="center center")
+    md-button.md-raised.md-primary Speech
+    md-button.md-raised.md-primary Photo
+  section(layout="row" layout-align="center center")
+    h1 {{word.name}}
+  section(layout="row" layout-align="center center")
+    md-button.md-raised.md-primary(ng-click="openDef()") Definition
+    md-button.md-raised.md-primary Pronunciation
+  section(layout="row" layout-align="center center")
+    md-button.md-raised.md-primary Use this word in a sentence
+  section(layout="row" layout-align="center center")
+    md-button.md-raised.md-primary Words You've Learned
+  
+  
