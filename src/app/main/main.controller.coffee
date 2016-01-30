@@ -90,7 +90,7 @@ app.animation(".slide", () ->
       finishPoint = element.parent().width()
       if scope.direction is 'left'
         finishPoint = -finishPoint
-
+      TweenMax.to(element, 0.5, {left: finishPoint, onComplete: done})
     else
       done()
     return
@@ -104,6 +104,8 @@ app.animation(".slide", () ->
       if scope.direction is 'right'
         startPoint = -startPoint
 
+      TweenMax.set(element, {left: startPoint})
+      TweenMax.to(element, 0.5, {left: 0, onComplete: done})
     else
       done()
     return
