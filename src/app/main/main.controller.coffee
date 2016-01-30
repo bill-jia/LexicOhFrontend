@@ -29,7 +29,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
       
       $scope.saveWord = () ->
         # POST word to words
-        # Restangular.all("words").post(word)
+        # Restangular.all("words").post($scope.word)
         recWordCount++
         console.log recWordCount
         if recWordCount > maxWords-1
@@ -81,6 +81,33 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           }
         })
 ])
+
+app.animation(".slide", () ->
+  addClass: (element, className, done) ->
+    scope = element.scope()
+
+    if className == 'ng-hide'
+      finishPoint = element.parent().width()
+      if scope.direction is 'left'
+        finishPoint = -finishPoint
+
+    else
+      done()
+    return
+  removeClass: (element, className, done) ->
+    scope = element.scope()
+
+    if className == 'ng-hide'
+      element.removeClass 'ng-hide'
+
+      startPoint = element.parent().width()
+      if scope.direction is 'right'
+        startPoint = -startPoint
+
+    else
+      done()
+    return
+)
 
 
 DialogController = ["$scope", "$mdDialog", "name", "definition",
