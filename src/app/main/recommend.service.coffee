@@ -1,9 +1,9 @@
 angular.module "coolnameFrontend"
-  .factory("WordService", ["Restangular",
+  .factory("RecommendService", ["Restangular",
     (Retangular) ->
-      model = "words"
+      model = "recommends"
 
       listWords: (userId) -> Restangular.one("users", userId).getList(model)
-      getWord: (userId, wordId) -> Restangular.one("users", userId).one(model, wordId).get()
+      getWord: (userId, wordId) -> Restangular.one("users", userId).one(model, wordId)
       updateWord: (word) -> word.put()
 ])

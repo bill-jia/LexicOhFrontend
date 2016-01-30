@@ -9,3 +9,5 @@ angular.module 'coolnameFrontend'
     toastrConfig.positionClass = 'toast-top-right'
     toastrConfig.preventDuplicates = true
     toastrConfig.progressBar = true
+  .config (RestangularProvider) ->
+    RestangularProvider.setBaseUrl(" http://still-pine-6294.getsandbox.com")

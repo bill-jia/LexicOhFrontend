@@ -1,27 +1,35 @@
 app = angular.module 'coolnameFrontend'
 
-app.controller('MainController', ["$scope", "$timeout", "WordService", "UserService", "$mdDialog", "$mdMedia"
-  ($scope, $timeout, WordService, UserService, $mdDialog, $mdMedia) ->
+app.controller('MainController', ["$scope", "$timeout", "WordService", "UserService", "RecommendService", "$mdDialog", "$mdMedia"
+  ($scope, $timeout, WordService, UserService, RecommendService, $mdDialog, $mdMedia) ->
 
     $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm')
     $scope.word = {name:"Potato", definition:"The best vegetable"}
     console.dir $scope.word
     console.log "Main controller engaged"
-
+    recWordCount = 0
 			
-		# UserService.getUser(1).then((user) ->
-		# 	$scope.user = user
-		# 	wordId = user.words[0]
-		# 	WordService.getWord(1).then((word) ->
-		# 		$scope.word = word
-		# 	)
-    # )
+    UserService.getUser(1).then((user) ->
+      $scope.user = user
+      wordId = user.recWords[recWordcount]
+      RecommendService.getWord(user.id, wordId).then((word) ->
+        $scope.word = word
+      )
+    )
     
     $scope.saveWord = () ->
-      $scope.word.name = $scope.word.name + "s"
+      recWordCount++
+      wordId = $scope.user.recWords[recWordCount]
+      RecommendService.getWord($scope.user.id, wordId).then((word) ->
+        $scope.word = word
+      )
 
     $scope.removeWord = () ->
-      $scope.word.name = $scope.word.name.slice(0,$scope.word.name.length-1)
+      recWordCount++
+      wordId = $scope.user.words[recWordCount]
+      RecommendService.getWord(wordId).then((word) ->
+        $scope.word = word
+      )
 
     $scope.openDef = (ev) ->
       useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen
