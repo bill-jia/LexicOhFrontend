@@ -163,7 +163,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
       $scope.toggleSpeechInput = () ->
         if $scope.listening
           # $scope.recognition.stop()
-          resetSpeechInput()
+          $scope.listening = false
           # console.log "Begin POST"
           console.log $scope.speechInput
           Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
@@ -179,7 +179,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           $scope.listening = true
           window.plugins.speechrecognizer.startRecognize(
               ((result) ->
-                resetSpeechInput()
+                $scope.listening = false
                 tmpArray = result[0].split(" ")
                 for word in tmpArray
                   $scope.speechInput.push word
@@ -194,6 +194,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
                 )
               )
               ,((err) ->
+                $scope.listening = false
                 resetSpeechInput()
                 console.log err)
             ,5) 
