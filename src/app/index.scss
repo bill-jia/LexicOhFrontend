@@ -93,12 +93,14 @@ section.jumbotron {
 .slide-animation {
   margin-left: 50px;
   margin-right: 50px;
+  opacity: 1;
 }
 
-.slide-animation.first-slide
-
 .slide-animation.ng-hide {
+  margin-left: 50px;
+  margin-right: 50px;
   opacity: 0;
+  transition: 0.5s linear all;
 }
 
 #speech-photo {
@@ -148,6 +150,10 @@ section.jumbotron {
   margin-right:0px;
   padding-bottom:8px;
   padding-top: 4px;
+}
+
+.botsheet{
+  background-color: #c0ca33;
 }
 
 

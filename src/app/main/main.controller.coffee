@@ -14,7 +14,6 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
       $scope.ocrInput = []
       $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm')
       $scope.words = [{word: "Potato", definition: "The best vegetable"}, {word: "Broccoli", definition: "The worst vegetable"}]
-      $scope.direction = "left"
       $scope.currIndex = 0
       $scope.word = $scope.words[$scope.currIndex]
   		
@@ -45,7 +44,6 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
       $scope.saveWord = () ->
         # POST word to words
         # Restangular.all("words").post($scope.word)
-        $scope.direction = "right"
         $scope.currIndex++
         console.log $scope.currIndex
         rightWords.push($scope.word.word)
@@ -77,7 +75,6 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
                      
 
       $scope.removeWord = () ->
-        $scope.direction = "left"
         $scope.currIndex++
         console.log $scope.currIndex
         leftWords.push($scope.word.word)
