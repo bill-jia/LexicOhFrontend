@@ -69,10 +69,10 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           position: "top right"          
         })
 
-        if (rightWords.length >= 10) {
+        if rightWords.length > 9
           Restangular.all("endpoint1").customPOST(rightWords)
           rightWords = []
-        }
+        
 
 
              
@@ -96,11 +96,10 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         else      
           $scope.word = $scope.words[$scope.currIndex]
         console.log "Word rejected"
-        
-        if (leftWords.length >= 10) {
+
+        if leftWords.length > 9 
           Restangular.all("endpoint2").customPOST(leftWords)
           leftWords = []
-        }
 
       $scope.openDef = (ev) ->
         useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen
@@ -138,8 +137,8 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
 
       $scope.showBottomSheet = ($event) ->
         $mdBottomSheet.show({
-          templateUrl: 'learnedwords.html',
-          controller: "BottomSheetController",
+          templateUrl: 'app/main/learnedwords.html'
+          controller: BottomSheetController
           targetEvent: $event
           locals: {
             words: $scope.learnedWords
