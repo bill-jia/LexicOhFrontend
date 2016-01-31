@@ -1,7 +1,7 @@
 md-bottom-sheet#learned-words.md-list.md-has-header.botsheet(ng-cloak)
 	md-header(flex)
 		h2#bottom-sheet-header(flex) Words I've learned
-	md-list(style="overflow-y: auto; max-height: 200px;")
+	md-list(style="overflow-y: scroll; max-height: 200px;")
 		md-list-item(ng-repeat="word in words")
 			md-button.md-list-item-content(ng-click="select($index)" flex)
 				span.md-inline-list-label {{word.word}}

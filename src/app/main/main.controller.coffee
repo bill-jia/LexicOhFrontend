@@ -8,7 +8,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
       leftWords = []
       rightWords = []
 
-
+      $scope.direction = "left"
       $scope.listening = false
       $scope.speechInput = []
       $scope.ocrInput = []
@@ -19,8 +19,8 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
   		
       Restangular.all("related").getList().then((words) ->
         $scope.currIndex = 0
+        maxWords = words.length
         $scope.words = words
-        maxWords = $scope.words.length
         $scope.word = words[$scope.currIndex]
       )
 
@@ -36,24 +36,25 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         Restangular.all("words").post(word)
         Restangular.all("related").post(word).then((words) ->
           $scope.currIndex = 0
+          maxWords = words.length
           $scope.words = words
-          maxWords = $scope.words.length
           $scope.word = words[$scope.currIndex]       
         )
       
       $scope.saveWord = () ->
         # POST word to words
-        # Restangular.all("words").post($scope.word)
+        $scope.direction = "right"
         $scope.currIndex++
-        console.log $scope.currIndex
+        console.log "Current index: " +$scope.currIndex
+        console.log "Max words: " + maxWords
         rightWords.push($scope.word.word)
 
         if $scope.currIndex > maxWords-1
           Restangular.all("related").getList().then((words) ->
             console.log "Words reloaded"
+            maxWords = words.length
             $scope.currIndex = 0
             $scope.words = words
-            maxWords = $scope.words.length
             $scope.word = words[$scope.currIndex]
           )
         else        
@@ -71,18 +72,23 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         if rightWords.length > 9
           console.log "Posting words"
           Restangular.all("words").all("acceptedWords").customPOST(rightWords).then(()->)
+          Restangular.all("words").customPOST(rightWords).then(Restangular.all("words").getList().then((words)->
+            $scope.learnedWords = words
+          ))
           rightWords = []
                      
 
       $scope.removeWord = () ->
+        $scope.direction = "left"
         $scope.currIndex++
-        console.log $scope.currIndex
+        console.log "Current index: " +$scope.currIndex
+        console.log "Max words: " + maxWords
         leftWords.push($scope.word.word)
         
         if $scope.currIndex > maxWords-1
           Restangular.all("related").getList().then((words) ->
             console.log "Words reloaded"
-            maxWords = $scope.words.length            
+            maxWords = words.length            
             $scope.currIndex = 0
             $scope.words = words
             $scope.word = $scope.words[$scope.currIndex]
@@ -148,9 +154,10 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         }).then(
           (word) ->
             $scope.words = []
+            maxWords = 1
             $scope.currIndex = 0
             $scope.words.push(word)
-            maxWords = 1
+            $scope.word = $scope.words[currIndex]
         )
 
       document.addEventListener('deviceready', ()->
@@ -166,15 +173,15 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           $scope.listening = false
           # console.log "Begin POST"
           console.log $scope.speechInput
-          Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
-            console.log "Words reloaded"
-            maxWords = $scope.words.length            
-            $scope.currIndex = 0
-            $scope.words = words
-            $scope.word = $scope.words[$scope.currIndex]
-            Restangular.all("words").all("translation").customPOST({"destLang":"es", "word": $scope.word.word}).then((translation) -> $scope.word.definition = translation)
-            $scope.speechInput = []
-          )                    
+          if $scope.speechInput.length > 0
+            Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
+              console.log "Words reloaded"
+              maxWords = words.length            
+              $scope.currIndex = 0
+              $scope.words = words
+              $scope.word = $scope.words[$scope.currIndex]
+              $scope.speechInput = []
+            )                    
         else
           $scope.listening = true
           window.plugins.speechrecognizer.startRecognize(
@@ -183,15 +190,15 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
                 tmpArray = result[0].split(" ")
                 for word in tmpArray
                   $scope.speechInput.push word
-                Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
-                  console.log "Words reloaded"
-                  maxWords = $scope.words.length            
-                  $scope.currIndex = 0
-                  $scope.words = words
-                  $scope.word = $scope.words[$scope.currIndex]
-                  Restangular.all("words").all("translation").customPOST({"destLang":"es", "word": $scope.word.word}).then((translation) -> $scope.word.definition = translation)    
-                  $scope.speechInput = []
-                )
+                if $scope.speechInput.length > 0                  
+                  Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
+                    console.log "Words reloaded"
+                    maxWords = words.length    
+                    $scope.currIndex = 0
+                    $scope.words = words
+                    $scope.word = $scope.words[$scope.currIndex]
+                    $scope.speechInput = []
+                  )
               )
               ,((err) ->
                 $scope.listening = false
@@ -242,7 +249,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
               console.dir $scope.ocrInput
               Restangular.all("related").all("multipleWords").customPOST($scope.ocrInput).then((words) ->
                 console.log "Words reloaded"
-                maxWords = $scope.words.length            
+                maxWords = words.length            
                 $scope.currIndex = 0
                 $scope.words = words
                 $scope.word = $scope.words[$scope.currIndex]
