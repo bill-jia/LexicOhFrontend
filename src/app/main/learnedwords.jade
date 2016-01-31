@@ -1,3 +1,7 @@
 md-bottom-sheet.md-list.md-has-header(ng-cloak)
-	md-subheader Words I've learned
-	
+	md-header(flex)
+		h2#bottom-sheet-header(flex) Words I've learned
+	md-list
+		md-list-item(ng-repeat="word in words")
+			md-button.md-list-item-content(ng-click="select($index)" flex)
+				span.md-inline-list-label {{word.word}}

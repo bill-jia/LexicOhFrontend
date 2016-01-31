@@ -123,6 +123,11 @@ section.jumbotron {
   user-select: none;           /* non-prefixed version, currently
                                   not supported by any browser */
 }
+
+#bottom-sheet-header {
+  margin: auto;
+  text-align: center;
+}
 /**
  *  Do not remove the comment below. It's the markers used by gulp-inject to inject
  *  all your sass files automatically
