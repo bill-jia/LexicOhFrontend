@@ -1,6 +1,6 @@
 app = angular.module 'coolnameFrontend'
 
-app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialog", "$mdMedia", "$mdToast", "$mdBottomSheet", "$speechRecognition", "$cordovaCamera", "$rootScope"
+app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialog", "$mdMedia", "$mdToast", "$mdBottomSheet", "$speechRecognition", "$cordovaCamera", "$rootScope",
     ($scope, $timeout, Restangular, $mdDialog, $mdMedia, $mdToast, $mdBottomSheet, $speechRecognition, $cordovaCamera, $rootScope) ->
 
 
@@ -39,7 +39,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           $scope.currIndex = 0
           $scope.words = words
           maxWords = $scope.words.length
-          $scope.word = words[$scope.currIndex]
+          $scope.word = words[$scope.currIndex]       
         )
       
       $scope.saveWord = () ->
@@ -51,8 +51,6 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         rightWords.push($scope.word.word)
 
         if $scope.currIndex > maxWords-1
-          maxWords = $scope.words.length
-          $scope.currIndex = 0
           Restangular.all("related").getList().then((words) ->
             console.log "Words reloaded"
             $scope.currIndex = 0
@@ -76,10 +74,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           console.log "Posting words"
           Restangular.all("words").all("acceptedWords").customPOST(rightWords).then(()->)
           rightWords = []
-        
-
-
-             
+                     
 
       $scope.removeWord = () ->
         $scope.direction = "left"
@@ -88,8 +83,6 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         leftWords.push($scope.word.word)
         
         if $scope.currIndex > maxWords-1
-          maxWords = $scope.words.length
-          $scope.currIndex = 0
           Restangular.all("related").getList().then((words) ->
             console.log "Words reloaded"
             maxWords = $scope.words.length            
@@ -110,18 +103,24 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
       $scope.openDef = (ev) ->
         useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen
 
-        $mdDialog.show({
-          controller: DialogController
-          templateUrl: "app/main/definition.html"
-          parent: angular.element(document.body)
-          targetEvent: ev
-          clickOutsideToClose: true
-          fullscreen: useFullScreen
-          locals: {
-            name: $scope.word.name
-            definition: $scope.word.definition
-          }
-        })
+        Restangular.all("words").all("translation").customPOST({"destLang":"es", "word": $scope.word.word}).then(
+          (translation) ->
+            $scope.word.definition = translation
+            $mdDialog.show({
+              controller: DialogController
+              templateUrl: "app/main/definition.html"
+              parent: angular.element(document.body)
+              targetEvent: ev
+              clickOutsideToClose: true
+              fullscreen: useFullScreen
+              locals: {
+                name: $scope.word.word
+                definition: $scope.word.definition
+              }
+            })
+        )
+
+
 
       $scope.openInput = (ev) ->
         useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen
@@ -157,23 +156,52 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
             maxWords = 1
         )
 
+      document.addEventListener('deviceready', ()->
+        console.log "Device ready", false)
+
+      resetSpeechInput = () ->
+        $scope.listening = false
+
+
       $scope.toggleSpeechInput = () ->
         if $scope.listening
-          $speechRecognition.stopListening()
-          $scope.listening = false
-          $rootScope.$on('finishedSpeechProcessing', ()->
-            console.log "Begin POST"
-            Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
-                console.log "Words reloaded"
-                maxWords = $scope.words.length            
-                $scope.currIndex = 0
-                $scope.words = words
-                $scope.word = $scope.words[$scope.currIndex])
-            )          
-          )          
+          # $scope.recognition.stop()
+          resetSpeechInput()
+          # console.log "Begin POST"
+          console.log $scope.speechInput
+          Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
+            console.log "Words reloaded"
+            maxWords = $scope.words.length            
+            $scope.currIndex = 0
+            $scope.words = words
+            $scope.word = $scope.words[$scope.currIndex]
+            Restangular.all("words").all("translation").customPOST({"destLang":"es", "word": $scope.word.word}).then((translation) -> $scope.word.definition = translation)
+            $scope.speechInput = []
+          )                    
         else
-          $speechRecognition.listen()
           $scope.listening = true
+          window.plugins.speechrecognizer.startRecognize(
+              ((result) ->
+                resetSpeechInput()
+                tmpArray = result[0].split(" ")
+                for word in tmpArray
+                  $scope.speechInput.push word
+                Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
+                  console.log "Words reloaded"
+                  maxWords = $scope.words.length            
+                  $scope.currIndex = 0
+                  $scope.words = words
+                  $scope.word = $scope.words[$scope.currIndex]
+                  Restangular.all("words").all("translation").customPOST({"destLang":"es", "word": $scope.word.word}).then((translation) -> $scope.word.definition = translation)    
+                  $scope.speechInput = []
+                )
+              )
+              ,((err) ->
+                resetSpeechInput()
+                console.log err)
+            ,5) 
+
+
 
       $speechRecognition.onUtterance((utterance) ->
         tmpArray = utterance.split(" ")
@@ -187,8 +215,9 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
 
 
       $scope.takePictureInput = () ->
+        console.log "Taking photo"
         document.addEventListener "deviceready", () ->
-          
+          console.log "Device ready"
           options =
             quality: 50,
             destinationType: Camera.DestinationType.DATA_URL,
@@ -203,16 +232,26 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
 
           $cordovaCamera.getPicture(options).then(
             (imageData) ->
-              inputString = ocrad(imageData)
+              # c = document.getElementById("placeholder")
+              # ctx = c.getContext("2d")
+              # image = document.getElementById('hiddenimage')
+              # image.src = "data:image/jpeg;base64," + imageData
+              # ctx.drawImage(image, 30, 30)
+              inputString = OCRAD(c)
               inputString = inputString.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
               inputWords = inputString.split(" ")
               $scope.ocrInput = inputWords
+              console.dir $scope.ocrInput
               Restangular.all("related").all("multipleWords").customPOST($scope.ocrInput).then((words) ->
                 console.log "Words reloaded"
                 maxWords = $scope.words.length            
                 $scope.currIndex = 0
                 $scope.words = words
-                $scope.word = $scope.words[$scope.currIndex])
+                $scope.word = $scope.words[$scope.currIndex]
+                Restangular.all("words").all("translation").customPOST({"destLang":"es", "word": $scope.word.word}).then((translation) -> $scope.word.definition = translation)  
+                $scope.ocrInput = []
+              )
+
             (err) ->
               console.log err
           )       

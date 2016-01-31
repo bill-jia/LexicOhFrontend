@@ -14,5 +14,7 @@ md-content(ng-swipe-right="saveWord()" ng-swipe-left="removeWord()")
   div#pullup
     section(layout="row" layout-align="center center")
       md-button.md-raised.md-primary#bottom-button(flex ng-click="showBottomSheet($event)") Words I've Learned
+  canvas#placeholder(ng-hide="")
+  img#hiddenimage(ng-hide="")
   
   
