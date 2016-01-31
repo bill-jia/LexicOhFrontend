@@ -22,13 +22,14 @@
     "lodash": "3.10.1",
     "gsap": "^1.18.2",
     "angular-swing": "*",
-    "angular-material-icons": "^0.6.0"
+    "angular-material-icons": "^0.6.0",
+    "angular-adaptive-speech": "latest"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.2"
   },
   "resolutions": {
     "jquery": "~2.1.4",
-    "angular": "~1.4.2"
+    "angular": "1.4.9"
   }
 }

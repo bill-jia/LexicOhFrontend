@@ -10,4 +10,6 @@ angular.module 'coolnameFrontend', [
   'ngMaterial',
   'toastr',
   'ngCordova',
-  'ngMdIcons']
+  'ngMdIcons',
+  'adaptive.speech'
+]

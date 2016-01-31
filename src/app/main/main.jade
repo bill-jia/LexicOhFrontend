@@ -1,8 +1,9 @@
 md-content(ng-swipe-right="saveWord()" ng-swipe-left="removeWord()")
   section#speech-photo(layout="row" layout-align="center center")
-    md-button.md-raised.md-fab(ng-click="openInput()")
-      ng-md-icon(icon="mic")
-    md-button.md-raised.md-fab
+    md-button.md-raised.md-fab(ng-click="toggleSpeechInput()")
+      ng-md-icon(icon="mic" ng-if="!listening")
+      ng-md-icon(icon="mic_off" ng-if="listening")
+    md-button.md-raised.md-fab(ng-click="takePictureInput()")
       ng-md-icon(icon="camera_alt")
   div#word-block
     section#word(layout="row" layout-align="center center")

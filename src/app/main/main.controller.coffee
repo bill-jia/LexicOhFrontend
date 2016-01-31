@@ -1,18 +1,21 @@
 app = angular.module 'coolnameFrontend'
 
-app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialog", "$mdMedia", "$mdToast", "$mdBottomSheet"
-    ($scope, $timeout, Restangular, $mdDialog, $mdMedia, $mdToast, $mdBottomSheet) ->
+app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialog", "$mdMedia", "$mdToast", "$mdBottomSheet", "$speechRecognition", "$cordovaCamera", "$rootScope"
+    ($scope, $timeout, Restangular, $mdDialog, $mdMedia, $mdToast, $mdBottomSheet, $speechRecognition, $cordovaCamera, $rootScope) ->
+
 
       maxWords = 2
       leftWords = []
       rightWords = []
 
+
+      $scope.listening = false
+      $scope.speechInput = []
+      $scope.ocrInput = []
       $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm')
       $scope.words = [{word: "Potato", definition: "The best vegetable"}, {word: "Broccoli", definition: "The worst vegetable"}]
       $scope.direction = "left"
-      console.log "Main controller engaged"
       $scope.currIndex = 0
-      user = {username: "TheUser", id: ""}
       $scope.word = $scope.words[$scope.currIndex]
   		
       Restangular.all("related").getList().then((words) ->
@@ -153,6 +156,68 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
             $scope.words.push(word)
             maxWords = 1
         )
+
+      $scope.toggleSpeechInput = () ->
+        if $scope.listening
+          $speechRecognition.stopListening()
+          $scope.listening = false
+          $rootScope.$on('finishedSpeechProcessing', ()->
+            console.log "Begin POST"
+            Restangular.all("related").all("multipleWords").customPOST($scope.speechInput).then((words) ->
+                console.log "Words reloaded"
+                maxWords = $scope.words.length            
+                $scope.currIndex = 0
+                $scope.words = words
+                $scope.word = $scope.words[$scope.currIndex])
+            )          
+          )          
+        else
+          $speechRecognition.listen()
+          $scope.listening = true
+
+      $speechRecognition.onUtterance((utterance) ->
+        tmpArray = utterance.split(" ")
+        for word in tmpArray
+          $scope.speechInput.push word
+
+        console.dir $scope.speechInput
+        $rootScope.$broadcast('finishedSpeechProcessing')
+      )
+
+
+
+      $scope.takePictureInput = () ->
+        document.addEventListener "deviceready", () ->
+          
+          options =
+            quality: 50,
+            destinationType: Camera.DestinationType.DATA_URL,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            allowEdit: true,
+            encodingType: Camera.EncodingType.JPEG,
+            targetWidth: 100,
+            targetHeight: 100,
+            popoverOptions: CameraPopoverOptions,
+            saveToPhotoAlbum: false,
+            correctOrientation:true
+
+          $cordovaCamera.getPicture(options).then(
+            (imageData) ->
+              inputString = ocrad(imageData)
+              inputString = inputString.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+              inputWords = inputString.split(" ")
+              $scope.ocrInput = inputWords
+              Restangular.all("related").all("multipleWords").customPOST($scope.ocrInput).then((words) ->
+                console.log "Words reloaded"
+                maxWords = $scope.words.length            
+                $scope.currIndex = 0
+                $scope.words = words
+                $scope.word = $scope.words[$scope.currIndex])
+            (err) ->
+              console.log err
+          )       
+
+
 ])
 
 app.animation(".slide-animation", ["$window", ($window) ->
