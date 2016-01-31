@@ -9,4 +9,5 @@ angular.module 'coolnameFrontend', [
   'ui.router',
   'ngMaterial',
   'toastr',
-  'ngCordova']
+  'ngCordova',
+  'ngMdIcons']
