@@ -13,5 +13,6 @@ angular.module 'coolnameFrontend'
     RestangularProvider.setBaseUrl("http://172.20.2.117:8080")
   .config ($mdThemingProvider) ->
     $mdThemingProvider.theme("default")
-      .primaryPalette("light-blue")
-      .accentPalette("amber")
+      .primaryPalette("lime", {'default': '600'})
+      .accentPalette("pink", {'default' : '300'})
+      .backgroundPalette('amber', {'default': '300'})

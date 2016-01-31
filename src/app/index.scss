@@ -111,7 +111,7 @@ section.jumbotron {
 }
 
 #pullup {
-  margin-top: 200px;
+  margin-top: 150px;
 }
 
 .noselect {
@@ -133,7 +133,21 @@ section.jumbotron {
 }
 
 #word {
-  margin-bottom: 75px;
+  margin-bottom: 50px;
+  font-size: 22pt;
+}
+
+.large-button {
+  font-size: 18pt;
+  padding: 8px;
+}
+
+#bottom-button {
+  font-size: 16pt;
+  margin-left:0px;
+  margin-right:0px;
+  padding-bottom:8px;
+  padding-top: 4px;
 }
 
 

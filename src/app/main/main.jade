@@ -1,18 +1,18 @@
 md-content(ng-swipe-right="saveWord()" ng-swipe-left="removeWord()")
   section#speech-photo(layout="row" layout-align="center center")
-    md-button.md-raised.md-fab(ng-click="toggleSpeechInput()")
-      ng-md-icon(icon="mic" ng-if="!listening")
-      ng-md-icon(icon="mic_off" ng-if="listening")
-    md-button.md-raised.md-fab(ng-click="takePictureInput()")
+    md-button.md-raised.md-fab.md-accent(ng-click="toggleSpeechInput()")
+      ng-md-icon(icon="mic" style="color: light-green" ng-if="!listening")
+      ng-md-icon(icon="mic_off" style="color: pink" ng-if="listening")
+    md-button.md-raised.md-fab.md-accent(ng-click="takePictureInput()")
       ng-md-icon(icon="camera_alt")
   div#word-block
     section#word(layout="row" layout-align="center center")
       h1.slide-animation.noselect(ng-repeat="w in words" ng-hide="!isCurrentIndex($index)") {{w.word}}
     section(layout="row" layout-align="center center")
-      md-button.md-raised.md-primary(ng-click="openDef(word)") Meaning
-      md-button.md-raised.md-primary Say it!
+      md-button.md-raised.md-primary.large-button(ng-click="openDef(word)") Meaning
+      md-button.md-raised.md-primary.large-button Say it!
   div#pullup
     section(layout="row" layout-align="center center")
-      md-button.md-raised.md-primary(flex ng-click="showBottomSheet($event)") Words I've Learned
+      md-button.md-raised.md-primary#bottom-button(flex ng-click="showBottomSheet($event)") Words I've Learned
   
   
