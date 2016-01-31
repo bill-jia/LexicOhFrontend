@@ -1,23 +1,30 @@
 app = angular.module 'coolnameFrontend'
 
-app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialog", "$mdMedia", "$mdToast"
-    ($scope, $timeout, Restangular, $mdDialog, $mdMedia, $mdToast) ->
+app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialog", "$mdMedia", "$mdToast", "$mdBottomSheet"
+    ($scope, $timeout, Restangular, $mdDialog, $mdMedia, $mdToast, $mdBottomSheet) ->
+
+      maxWords = 2
+      leftWords = []
+      rightWords = []
 
       $scope.customFullscreen = $mdMedia('xs') || $mdMedia('sm')
       $scope.words = [{word: "Potato", definition: "The best vegetable"}, {word: "Broccoli", definition: "The worst vegetable"}]
       $scope.direction = "left"
       console.log "Main controller engaged"
       $scope.currIndex = 0
-      maxWords = 2
       user = {username: "TheUser", id: ""}
       $scope.word = $scope.words[$scope.currIndex]
   		
-      Restangular.all("related").all("all").getList().then((words) ->
+      Restangular.all("related").getList().then((words) ->
         $scope.words = words
         maxWords = $scope.words.length
         console.log maxWords
         console.dir $scope.words
         $scope.word = words[$scope.currIndex]
+      )
+
+      Restangular.all("words").getList().then((words)->
+        $scope.learnedWords = words
       )
 
       $scope.isCurrentIndex = (index) ->
@@ -39,10 +46,12 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         $scope.direction = "right"
         $scope.currIndex++
         console.log $scope.currIndex
+        rightWords.push($scope.word)
+
         if $scope.currIndex > maxWords-1
           maxWords = $scope.words.length
           $scope.currIndex = 0
-          Restangular.all("related").all("all").getList().then((words) ->
+          Restangular.all("related").getList().then((words) ->
             console.log "Words reloaded"
             maxWords = $scope.words.length
             $scope.currIndex = 0
@@ -59,16 +68,25 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           hideDelay: 2000
           position: "top right"          
         })
+
+        if (rightWords.length >= 10) {
+          Restangular.all("endpoint1").customPOST(rightWords)
+          rightWords = []
+        }
+
+
              
 
       $scope.removeWord = () ->
         $scope.direction = "left"
         $scope.currIndex++
         console.log $scope.currIndex
+        rightWords.push($scope.word)
+        
         if $scope.currIndex > maxWords-1
           maxWords = $scope.words.length
           $scope.currIndex = 0
-          Restangular.all("related").all("all").getList().then((words) ->
+          Restangular.all("related").getList().then((words) ->
             console.log "Words reloaded"
             maxWords = $scope.words.length            
             $scope.currIndex = 0
@@ -78,6 +96,11 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         else      
           $scope.word = $scope.words[$scope.currIndex]
         console.log "Word rejected"
+        
+        if (leftWords.length >= 10) {
+          Restangular.all("endpoint2").customPOST(leftWords)
+          leftWords = []
+        }
 
       $scope.openDef = (ev) ->
         useFullScreen = ($mdMedia('sm') || $mdMedia('xs')) && $scope.customFullscreen
@@ -111,6 +134,20 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
             $scope.addWord(word)
           () ->
             console.log "dialog closed"
+        )
+
+      $scope.showBottomSheet = ($event) ->
+        $mdBottomSheet.show({
+          templateUrl: 'learnedwords.html',
+          controller: "BottomSheetController",
+          targetEvent: $event
+          locals: {
+            words: $scope.learnedWords
+          }
+        }).then(
+          (word) ->
+            $scope.words = []
+            $scope.words.push(word)
         )
 ])
 
@@ -175,4 +212,11 @@ InputDialogController = ["$scope", "$mdDialog",
     $scope.hide = () ->
       $mdDialog.hide()
 
+]
+
+BottomSheetController = ["$scope", "$mdBottomSheet", "words",
+  ($scope, $mdBottomSheet, words) ->
+    $scope.words = words
+    $scope.select = ($index) ->
+      $mdBottomSheet.hide($scope.words[$index])
 ]
