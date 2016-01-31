@@ -8,10 +8,10 @@ md-content(ng-swipe-right="saveWord()" ng-swipe-left="removeWord()")
     section(layout="row" layout-align="center center")
       h1.slide-animation.noselect(ng-repeat="w in words" ng-hide="!isCurrentIndex($index)") {{w.word}}
     section(layout="row" layout-align="center center")
-      md-button.md-raised.md-primary(ng-click="openDef(word)") Definition
-      md-button.md-raised.md-primary Pronunciation
+      md-button.md-raised.md-primary(ng-click="openDef(word)") Meaning
+      md-button.md-raised.md-primary Say it!
   div#pullup
     section(layout="row" layout-align="center center")
-      md-button.md-raised.md-primary(flex ng-click="showBottomSheet($event)") Words You've Learned
+      md-button.md-raised.md-primary(flex ng-click="showBottomSheet($event)") Words I've Learned
   
   

@@ -11,3 +11,7 @@ angular.module 'coolnameFrontend'
     toastrConfig.progressBar = true
   .config (RestangularProvider) ->
     RestangularProvider.setBaseUrl("http://172.20.2.117:8080")
+  .config ($mdThemingProvider) ->
+    $mdThemingProvider.theme("default")
+      .primaryPalette("light-blue")
+      .accentPalette("amber")
