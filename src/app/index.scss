@@ -90,6 +90,30 @@ section.jumbotron {
   }
 }
 
+.slide-animation {
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.slide-animation.first-slide
+
+.slide-animation.ng-hide {
+  opacity: 0;
+}
+
+#speech-photo {
+  margin-top: 75px;
+}
+
+#word-block {
+  margin-top: 50px;
+  margin-bottom: 100px;
+}
+
+#pullup {
+  margin-top: 100px;
+}
+
 /**
  *  Do not remove the comment below. It's the markers used by gulp-inject to inject
  *  all your sass files automatically

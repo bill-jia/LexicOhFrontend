@@ -1,0 +1,14 @@
+md-dialog
+  md-toolbar
+    div.md-toolbar-tools
+      h2 Input word
+      span(flex)
+      md-button.md-icon-button(ng-click="cancel()")
+        i.mdi.mdi-close
+  md-dialog-content(style="width:700px; height:450px;")
+    form()
+      md-input-container()
+        label Word
+        input(id="word" name="word" type="text" ng-model="word")
+  div.md-actions
+    md-button(ng-click="answer()") Add
