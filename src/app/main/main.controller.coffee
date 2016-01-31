@@ -16,10 +16,9 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
       $scope.word = $scope.words[$scope.currIndex]
   		
       Restangular.all("related").getList().then((words) ->
+        $scope.currIndex = 0
         $scope.words = words
         maxWords = $scope.words.length
-        console.log maxWords
-        console.dir $scope.words
         $scope.word = words[$scope.currIndex]
       )
 
@@ -34,28 +33,28 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         # POST word to words
         Restangular.all("words").post(word)
         Restangular.all("related").post(word).then((words) ->
-          maxWords = $scope.words.length
           $scope.currIndex = 0
           $scope.words = words
+          maxWords = $scope.words.length
           $scope.word = words[$scope.currIndex]
         )
       
       $scope.saveWord = () ->
         # POST word to words
-        Restangular.all("words").post($scope.word)
+        # Restangular.all("words").post($scope.word)
         $scope.direction = "right"
         $scope.currIndex++
         console.log $scope.currIndex
-        rightWords.push($scope.word)
+        rightWords.push($scope.word.word)
 
         if $scope.currIndex > maxWords-1
           maxWords = $scope.words.length
           $scope.currIndex = 0
           Restangular.all("related").getList().then((words) ->
             console.log "Words reloaded"
-            maxWords = $scope.words.length
             $scope.currIndex = 0
             $scope.words = words
+            maxWords = $scope.words.length
             $scope.word = words[$scope.currIndex]
           )
         else        
@@ -69,8 +68,10 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           position: "top right"          
         })
 
+        console.dir rightWords
         if rightWords.length > 9
-          Restangular.all("endpoint1").customPOST(rightWords)
+          console.log "Posting words"
+          Restangular.all("words").all("acceptedWords").customPOST(rightWords).then(()->)
           rightWords = []
         
 
@@ -81,7 +82,7 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         $scope.direction = "left"
         $scope.currIndex++
         console.log $scope.currIndex
-        rightWords.push($scope.word)
+        leftWords.push($scope.word.word)
         
         if $scope.currIndex > maxWords-1
           maxWords = $scope.words.length
@@ -97,8 +98,10 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
           $scope.word = $scope.words[$scope.currIndex]
         console.log "Word rejected"
 
-        if leftWords.length > 9 
-          Restangular.all("endpoint2").customPOST(leftWords)
+        console.dir leftWords
+        if leftWords.length > 9
+          console.log "Posting words"
+          Restangular.all("words").all("discardedWords").customPOST(leftWords).then(()->)
           leftWords = []
 
       $scope.openDef = (ev) ->
@@ -146,7 +149,9 @@ app.controller('MainController', ["$scope", "$timeout", "Restangular", "$mdDialo
         }).then(
           (word) ->
             $scope.words = []
+            $scope.currIndex = 0
             $scope.words.push(word)
+            maxWords = 1
         )
 ])
 
